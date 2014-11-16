@@ -146,15 +146,28 @@ def import_archive(filename, markov):
 				text = text.replace("\n", ' ')
 				text = text.strip()
 				corpus.append(text)
-	corpus = ". ".join(corpus)
-	markov.generateDatabase(corpus, n=3)
+	joined = "\n".join(corpus)
+	markov.generateDatabase(joined, n=3)
 	markov.dumpdb()
 
-def make_tweet(markov):
-	tweet = markov.generateString()
-	while len(tweet) > 140 or len(tweet) < 70:
+def make_tweet(markov, reply=None):
+	if reply:
+		try:
+			tweet = markov.generateStringWithSeed(reply)
+		except StringContinuationImpossibleError:
+			return None
+	else:
 		tweet = markov.generateString()
-	return tweet.decode('utf-8')
+	complete = ""
+	while len(complete) < 70:
+		complete = complete + tweet + ". "
+		tweet = ""
+		while len(tweet) > 140 or len(tweet) < 15:
+			if reply:
+				tweet = markov.generateStringWithSeed(reply)
+			else:
+				tweet = markov.generateString()
+	return complete.decode('utf-8')
 
 OAUTH_TOKEN = None
 OAUTH_TOKEN_SECRET = None
