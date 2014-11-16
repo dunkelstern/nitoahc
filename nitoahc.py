@@ -95,7 +95,7 @@ def save_config(filename):
 def import_archive(filename, markov):
 	rt_regex      = re.compile(r'RT ')
 	reply_regex   = re.compile(r'@[^ ]*')
-	hashtag_regex = re.compile(r'#[^ ]*')
+#	hashtag_regex = re.compile(r'#[^ ]*')
 	link_regex    = re.compile(r'http[s]*://[^ ]*')
 
 	action_regex  = re.compile(r'\*(.+)\*')
@@ -121,7 +121,7 @@ def import_archive(filename, markov):
 				repl = []
 				repl.extend(rt_regex.findall(text))
 				repl.extend(reply_regex.findall(text))
-				repl.extend(hashtag_regex.findall(text))
+#				repl.extend(hashtag_regex.findall(text))
 				repl.extend(link_regex.findall(text))
 				for r in repl:
 					text = text.replace(r, '')
