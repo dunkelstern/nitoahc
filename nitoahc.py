@@ -99,7 +99,7 @@ def import_archive(filename, markov):
 	action_regex  = re.compile(r'\*(.+)\*')
 	parens_regex  = re.compile(r'\((.+)\)')
 
-	corpus = ""
+	corpus = []
 	with ZipFile(filename, "r") as zip:
 		files = zip.namelist()
 		tweet_files = []
@@ -143,8 +143,9 @@ def import_archive(filename, markov):
 				text = text.replace(u'‟', '')
 				text = text.replace("\n", ' ')
 				text = text.strip()
-				corpus = corpus + ". " + text
-	markov.generateDatabase(corpus)
+				corpus.append(text)
+	corpus = ". ".join(corpus)
+	markov.generateDatabase(corpus, n=3)
 	markov.dumpdb()
 
 def make_tweet(markov):
