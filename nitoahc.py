@@ -9,7 +9,7 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 from twython import Twython, TwythonError
 from zipfile import ZipFile
-from pymarkovchain import MarkovChain
+from pymarkovchain import MarkovChain, StringContinuationImpossibleError
 from sys import exit
 from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
 from datetime import datetime
@@ -41,7 +41,9 @@ parser.add_argument('--import', dest='import_archive', nargs="+", help='import t
 
 # tweet generation
 parser.add_argument('--print', action='store_const', const=True, dest='print_tweet', help='print a tweet')
+parser.add_argument('--print-reply', dest='print_reply', help='print a tweet that starts with a word')
 parser.add_argument('--tweet', action='store_const', const=True, dest='tweet', help='send a tweet')
+parser.add_argument('--tweet-reply', dest='tweet_reply', help='send a tweet that starts with a word')
 
 args = parser.parse_args()
 
@@ -229,9 +231,28 @@ if args.print_tweet == True:
 		print make_tweet(markov)
 	exit(0)
 
+if args.print_reply != None:
+	for i in xrange(0,100):
+		text = make_tweet(markov, reply=args.print_reply)
+		if text == None:
+			print "No reply possible with stored corpus"
+			exit(1)
+		print text
+	exit(0)
+
 if args.tweet == True:
 	twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 	text = make_tweet(markov)
+	twitter.update_status(status=text)
+	print "Tweet sent"
+	exit(0)
+
+if args.tweet_reply != None:
+	twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+	text = make_tweet(markov, reply=args.tweet_reply)
+	if text == None:
+		print "No reply possible with stored corpus"
+		exit(1)
 	twitter.update_status(status=text)
 	print "Tweet sent"
 	exit(0)
