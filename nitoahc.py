@@ -150,7 +150,7 @@ def import_archive(filename, markov):
 
 def make_tweet(markov):
 	tweet = markov.generateString()
-	while len(tweet) > 140 or len(tweet) < 42:
+	while len(tweet) > 140 or len(tweet) < 100:
 		tweet = markov.generateString()
 	return tweet
 
