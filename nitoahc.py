@@ -226,9 +226,11 @@ if args.pin != None:
 	exit(0)
 
 if args.reset == True:
-	os.remove(DB_FILE)
+	try:
+		os.remove(DB_FILE)
+	except OSError:
+		pass
 	print "DB-File removed"
-	exit(0)
 
 markov = MarkovChain(DB_FILE)
 
@@ -237,7 +239,6 @@ if args.import_archive != None:
 		print "Importing", f
 		import_archive(f, markov)
 	print "All files imported"
-	exit(0)
 
 if args.print_tweet == True:
 	for i in xrange(0,100):
