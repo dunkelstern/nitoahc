@@ -149,12 +149,12 @@ def make_tweet(markov):
 
 OAUTH_TOKEN = None
 OAUTH_TOKEN_SECRET = None
+DB_FILE = os.path.expanduser("~/.nitoahc_db")
 
 CONFIG_FILE = args.config
 load_config(CONFIG_FILE)
 resave_config = False
 
-DB_FILE = os.path.expanduser("~/.nitoahc_db")
 if args.db != None:
 	resave_config = True
 	DB_FILE = args.db
