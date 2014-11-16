@@ -152,7 +152,7 @@ def make_tweet(markov):
 	tweet = markov.generateString()
 	while len(tweet) > 140 or len(tweet) < 100:
 		tweet = markov.generateString()
-	return tweet
+	return tweet.decode('utf-8')
 
 OAUTH_TOKEN = None
 OAUTH_TOKEN_SECRET = None
