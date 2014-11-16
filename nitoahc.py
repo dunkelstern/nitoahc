@@ -14,7 +14,9 @@ from sys import exit
 from ConfigParser import SafeConfigParser, NoOptionError, NoSectionError
 from datetime import datetime
 from calendar import timegm
+from BeautifulSoup import BeautifulSoup
 
+import feedparser
 import random
 import argparse
 import os
@@ -38,6 +40,7 @@ parser.add_argument('--pin', dest='pin', help='save pin from twitter auth')
 # archive import
 parser.add_argument('--reset-corpus', action='store_const', const=True, dest='reset', help='reset markov corpus')
 parser.add_argument('--import', dest='import_archive', nargs="+", help='import twitter archive as markov corpus (adds to corpus)')
+parser.add_argument('--import-feed', dest='import_feed', help='import rss feed to corpus, combine with --import')
 
 # tweet generation
 parser.add_argument('--print', action='store_const', const=True, dest='print_tweet', help='print a tweet')
@@ -150,6 +153,35 @@ def import_archive(filename, markov):
 	markov.generateDatabase(joined, n=3)
 	markov.dumpdb()
 
+def import_feed(url, markov):
+
+	def visible(element):
+		if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
+			return False
+		elif re.match('<!--.*-->', str(element)):
+			return False
+		return True
+
+	parens_regex  = re.compile(r'\((.+)\)')
+	bracket_regex  = re.compile(r'\[.+\]')
+
+	feed = feedparser.parse(url)
+	if 'bozo' in feed:
+		print "WARNING: Probably malformed feed"
+	for item in feed['items']:
+		soup = BeautifulSoup(item['summary_detail']['value'])
+		text = " ".join(filter(visible, soup.findAll(text=True)))
+		repl = []
+		repl.extend(bracket_regex.findall(text))
+		for r in repl:
+			text = text.replace(r, '')
+
+		result = parens_regex.search(text)
+		if result:
+			text = text.replace(text[result.start():result.end()], result.group(1))
+		markov.generateDatabase(text, n=3)
+	markov.dumpdb()
+
 def make_tweet(markov, reply=None):
 	if reply:
 		try:
@@ -233,6 +265,11 @@ if args.reset == True:
 	print "DB-File removed"
 
 markov = MarkovChain(DB_FILE)
+
+if args.import_feed != None:
+	print "Importing", args.import_feed
+	import_feed(args.import_feed, markov)
+	print "Feed imported"
 
 if args.import_archive != None:
 	for f in args.import_archive:

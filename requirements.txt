@@ -1,3 +1,4 @@
 twython>=3.2.0
 git+https://github.com/dunkelstern/PyMarkovChain.git
+feedparser>=5.1.3
 
