@@ -37,7 +37,7 @@ parser.add_argument('--pin', dest='pin', help='save pin from twitter auth')
 
 # archive import
 parser.add_argument('--reset-corpus', action='store_const', const=True, dest='reset', help='reset markov corpus')
-parser.add_argument('--import', dest='import_archive', help='import twitter archive as markov corpus (adds to corpus)')
+parser.add_argument('--import', dest='import_archive', nargs="+", help='import twitter archive as markov corpus (adds to corpus)')
 
 # tweet generation
 parser.add_argument('--print', action='store_const', const=True, dest='print_tweet', help='print a tweet')
@@ -109,7 +109,11 @@ def import_archive(filename, markov):
 		for file in tweet_files:
 			data = zip.read(file)
 			data = data[data.find('\n')+1:]
-			parsed = json.loads(data)
+			try:
+				parsed = json.loads(data)
+			except ValueError as e:
+				print "Error:", e, ", File:", file
+				continue
 			for tweet in parsed:
 				text = tweet['text']
 				repl = []
@@ -213,12 +217,15 @@ if args.reset == True:
 markov = MarkovChain(DB_FILE)
 
 if args.import_archive != None:
-	import_archive(args.import_archive, markov)
-	print "File imported"
+	for f in args.import_archive:
+		print "Importing", f
+		import_archive(f, markov)
+	print "All files imported"
 	exit(0)
 
 if args.print_tweet == True:
-	print make_tweet(markov)
+	for i in xrange(0,100):
+		print make_tweet(markov)
 	exit(0)
 
 if args.tweet == True:
