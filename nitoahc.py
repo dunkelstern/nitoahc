@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# set output to utf-8
+import sys
+import codecs
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+
+
 from twython import Twython, TwythonError
 from zipfile import ZipFile
 from pymarkovchain import MarkovChain
@@ -15,10 +21,6 @@ import os
 import json
 import re
 
-# set output to utf-8
-import sys
-import codecs
-sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 random.seed(timegm(datetime.now().utctimetuple()))
 
 parser = argparse.ArgumentParser(description='Tweet markov chain generated nonsense to an account.')
